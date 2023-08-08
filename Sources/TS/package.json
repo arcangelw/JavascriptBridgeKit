@@ -1,0 +1,34 @@
+{
+  "name": "jsbridge",
+  "version": "0.0.1",
+  "description": "",
+  "main": "",
+  "module": "",
+  "umd": "",
+  "type": "module",
+  "private": false,
+  "scope": "",
+  "scripts": {
+    "build": "rollup -c rollup.config.js && cp ./dist/JSBridge.js ../JavascriptBridgeKit/Core/JSBridge.js"
+  },
+  "author": "",
+  "repository": {},
+  "keywords": [],
+  "homepage": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.2",
+    "rollup-plugin-dts": "^5.3.1",
+    "rollup-plugin-typescript2": "^0.35.0",
+    "tslib": "^2.6.1",
+    "typescript": "^5.1.6"
+  },
+  "standard-version": {},
+  "browserslist": [
+    "iOS >= 11.0",
+    "Android >= 6.0"
+  ],
+  "dependencies": {
+    "@rollup/plugin-commonjs": "^25.0.3"
+  }
+}
