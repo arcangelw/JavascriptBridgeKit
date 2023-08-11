@@ -15,7 +15,10 @@ public protocol JavascriptBridgeExport: AnyObject {}
 public class JavascriptBridge: NSObject {
     private let iOS_Native_JSBridgeMessage = "iOS_Native_JSBridgeMessage"
 
-    public weak var webView: WKWebView?
+    public private(set) weak var webView: WKWebView?
+    
+    public var isEnableCookieSetHook = true
+    public var isEnableCookieGetHook = true
 
     private(set) weak var uiDelegate: WKUIDelegate?
 

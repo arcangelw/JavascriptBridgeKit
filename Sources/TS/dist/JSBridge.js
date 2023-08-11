@@ -279,17 +279,86 @@
         return JSBridge;
     }());
 
+    /// <reference path="../../types/index.d.ts" />
+    /**
+     * hook document.cookie
+     */
+    var _JSBridgeCookieHook = /** @class */ (function () {
+        function _JSBridgeCookieHook() {
+        }
+        // 静态属性和方法
+        _JSBridgeCookieHook.moduleName = 'cookieSync';
+        /**
+         * 通过重新定义 cookie 属性来进行 cookie hook
+         */
+        _JSBridgeCookieHook.setupHook = function () {
+            try {
+                var cookieDesc = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie') ||
+                    Object.getOwnPropertyDescriptor(HTMLDocument.prototype, 'cookie');
+                if (cookieDesc && cookieDesc.configurable) {
+                    Object.defineProperty(document, 'cookie', {
+                        configurable: true,
+                        enumerable: true,
+                        get: function () {
+                            if (window.KKJSBridgeConfig.cookieGetHook) { // 如果开启 cookie get hook，则需要从 Native 同步
+                                return window.JSBridge.callNative(_JSBridgeCookieHook.moduleName, "getCookie", [window.location.href]);
+                            }
+                            return cookieDesc.get.call(document);
+                        },
+                        set: function (val) {
+                            // console.log('setCookie');
+                            if (window.JSBridgeConfig.cookieSetHook) { // 如果开启 cookie set hook，则需要把 cookie 同步给 Native
+                                window.JSBridge.callNative(_JSBridgeCookieHook.moduleName, "setCookie", [val]);
+                            }
+                            cookieDesc.set.call(document, val);
+                        }
+                    });
+                }
+            }
+            catch (e) {
+                console.log('this browser does not support reconfigure document.cookie property', e);
+            }
+        };
+        return _JSBridgeCookieHook;
+    }());
+
     /// <reference path="../types/index.d.ts" />
     var init = function () {
         if (window.JSBridge) {
             return;
         }
+        /**
+      * KKJSBridge 配置
+      */
+        var JSBridgeConfig = /** @class */ (function () {
+            function JSBridgeConfig() {
+            }
+            JSBridgeConfig.cookieSetHook = true;
+            JSBridgeConfig.cookieGetHook = true;
+            /**
+             * 开启 cookie set hook
+             */
+            JSBridgeConfig.enableCookieSetHook = function (enable) {
+                JSBridgeConfig.cookieSetHook = enable;
+            };
+            /**
+             * 开启 cookie get hook
+             */
+            JSBridgeConfig.enableCookieGetHook = function (enable) {
+                JSBridgeConfig.cookieGetHook = enable;
+            };
+            return JSBridgeConfig;
+        }());
         // 初始化 JSBridge 并设为全局对象
         window.JSBridge = new JSBridge();
+        // 设置 KKJSBridgeConfig 为全局对象
+        window.JSBridgeConfig = JSBridgeConfig;
         // iframe 内处理来自父 window 的消息
         JSBridgeIframe.addMessageListener();
         // 设置 iframe hook
         JSBridgeIframe.setupHook();
+        // 安装 cookie hook
+        _JSBridgeCookieHook.setupHook();
     };
     init();
     var index = window.JSBridge;
