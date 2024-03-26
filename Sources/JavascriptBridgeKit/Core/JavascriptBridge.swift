@@ -1,5 +1,5 @@
 //
-//  JavascriptBridgeKit.swift
+//  JavascriptBridge.swift
 //
 //
 //  Created by 吴哲 on 2023/8/4.
@@ -16,7 +16,7 @@ public class JavascriptBridge: NSObject {
     private let iOS_Native_JSBridgeMessage = "iOS_Native_JSBridgeMessage"
 
     public private(set) weak var webView: WKWebView?
-    
+
     public var isEnableCookieSetHook = true
     public var isEnableCookieGetHook = true
 
@@ -145,7 +145,7 @@ extension JavascriptBridge: WKScriptMessageHandler {
         }
     }
 
-    internal func handleSyncCall(_ prompt: String, _ defaultText: String, _ completionHandler: @escaping (String?) -> Void) -> Bool {
+    func handleSyncCall(_ prompt: String, _ defaultText: String, _ completionHandler: @escaping (String?) -> Void) -> Bool {
         guard prompt == iOS_Native_JSBridgeMessage else {
             return false
         }

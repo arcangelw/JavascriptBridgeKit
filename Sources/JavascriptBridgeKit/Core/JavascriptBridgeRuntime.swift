@@ -1,5 +1,5 @@
 //
-//  JavascriptBridgeKit.swift
+//  JavascriptBridgeRuntime.swift
 //
 //
 //  Created by 吴哲 on 2023/8/10.
@@ -162,7 +162,9 @@ private extension Selector {
     var family: Family {
         // See: http://clang.llvm.org/docs/AutomaticReferenceCounting.html#id34
         var sel = unsafeBitCast(self, to: UnsafePointer<Int8>.self)
-        while sel.pointee == 0x5F { sel += 1 } // skip underscore '_'
+        while sel.pointee == 0x5F {
+            sel += 1
+        } // skip underscore '_'
         for prefixe in Selector.prefixes {
             let lowercase = CChar(0x61) ... CChar(0x7A)
             let length = prefixe.count

@@ -3,7 +3,7 @@
 /**
  * hook document.cookie
  */
-export class _JSBridgeCookieHook {
+export class _JSBridgeKitCookieHook {
     // 静态属性和方法
     public static readonly moduleName: string = 'cookieSync';
     /**
@@ -18,16 +18,16 @@ export class _JSBridgeCookieHook {
                     configurable: true,
                     enumerable: true,
                     get: function () {
-                        if (window.KKJSBridgeConfig.cookieGetHook) {// 如果开启 cookie get hook，则需要从 Native 同步
-                            return window.JSBridge.callNative(_JSBridgeCookieHook.moduleName, "getCookie", [window.location.href]);
+                        if (window.JSNativeBridgeKitConfig.cookieGetHook) {// 如果开启 cookie get hook，则需要从 Native 同步
+                            return window.JSNativeBridge.callNative(_JSBridgeKitCookieHook.moduleName, "getCookie", [window.location.href]);
                         }
 
                         return cookieDesc.get.call(document);
                     },
                     set: function (val) {
                         // console.log('setCookie');
-                        if (window.JSBridgeConfig.cookieSetHook) {// 如果开启 cookie set hook，则需要把 cookie 同步给 Native
-                            window.JSBridge.callNative(_JSBridgeCookieHook.moduleName, "setCookie", [val]);
+                        if (window.JSNativeBridgeKitConfig.cookieSetHook) {// 如果开启 cookie set hook，则需要把 cookie 同步给 Native
+                            window.JSNativeBridge.callNative(_JSBridgeKitCookieHook.moduleName, "setCookie", [val]);
                         }
 
                         cookieDesc.set.call(document, val);

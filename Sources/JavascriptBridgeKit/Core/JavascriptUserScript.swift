@@ -1,5 +1,5 @@
 //
-//  JavascriptBridgeKit.swift
+//  JavascriptUserScript.swift
 //
 //
 //  Created by 吴哲 on 2023/8/10.
@@ -30,7 +30,7 @@ final class JavascriptUserScript: WKUserScript {
         let methods = instanceMethods(target, on: aProtocol)
         let script: (_ list: [String], _ isSync: Bool) -> String = {
             let data: Data = (try? JSONEncoder().encode($0)) ?? Data("[]".utf8)
-            return "window.JSBridge.injectNativeScript&&window.JSBridge.injectNativeScript('\(module)','\(String(decoding: data, as: UTF8.self))',\($1 ? "true" : "false");"
+            return "window.JSNativeBridge.injectNativeScript&&window.JSNativeBridge.injectNativeScript('\(module)','\(String(decoding: data, as: UTF8.self))',\($1 ? "true" : "false");"
         }
         let syncMethods = methods.syncSelectors.map(NSStringFromSelector).sorted(by: <)
         let asyncMethods = methods.asyncSelectors.map(NSStringFromSelector).sorted(by: <)

@@ -3,14 +3,14 @@
 /**
  * JSBridge 工具
  */
-export class JSBridgeUtils {
+export class JSBridgeKitUtils {
 
 }
 
 /**
  * 处理iframe
  */
-export class JSBridgeIframe {
+export class JSBridgeKitIframe {
 
 
     /**
@@ -40,7 +40,7 @@ export class JSBridgeIframe {
                 let str: string = data as string
                 if (str.indexOf("messageType") !== -1) {
                     // 处理回调
-                    window.JSBridge.handleMesageFromNative(str);
+                    window.JSNativeBridge.handleMesageFromNative(str);
                 }
             }
         });

@@ -9,6 +9,6 @@ export default {
     output: {
         file: 'dist/JSBridge.js',
         format: 'umd',
-        name: "JSBridge"
+        name: "JSNativeBridge"
     }
 };

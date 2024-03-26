@@ -1,5 +1,5 @@
 //
-//  JavascriptBridgeKit.swift
+//  JavascriptDispatcher.swift
 //
 //
 //  Created by 吴哲 on 2023/8/10.

@@ -1,5 +1,5 @@
 //
-//  JavascriptBridgeKit.swift
+//  JavascriptBridgeExecutor.swift
 //
 //
 //  Created by 吴哲 on 2023/8/7.
@@ -40,7 +40,7 @@ public extension JavascriptBridge {
             messageJSON = messageJSON.replacingOccurrences(of: "\u{2028}", with: "\\u2028")
             messageJSON = messageJSON.replacingOccurrences(of: "\u{2029}", with: "\\u2029")
 
-            let javascript = "window.JSBridge.handleMesageFromNative && window.JSBridge.handleMesageFromNative('\(messageJSON)')"
+            let javascript = "window.JSNativeBridge.handleMesageFromNative && window.JSNativeBridge.handleMesageFromNative('\(messageJSON)')"
             webView?.evaluateJavascriptInDefaultContentWorld(javascript)
         } catch {
             debugPrint(error.localizedDescription)
@@ -50,15 +50,15 @@ public extension JavascriptBridge {
 
 // MARK: - clear module
 
-internal extension JavascriptBridge {
+extension JavascriptBridge {
     /// 清空所有module
     func clearAllModules() {
-        webView?.evaluateJavascriptInDefaultContentWorld("window.JSBridge&&window.JSBridge.clearAllModules()")
+        webView?.evaluateJavascriptInDefaultContentWorld("window.JSNativeBridge&&window.JSNativeBridge.clearAllModules()")
     }
 
     /// 清空指定module
     /// - Parameter module: module
     func clearModule(_ module: String) {
-        webView?.evaluateJavascriptInDefaultContentWorld("window.JSBridge&&window.JSBridge.clearModule('\(module)')")
+        webView?.evaluateJavascriptInDefaultContentWorld("window.JSNativeBridge&&window.JSNativeBridge.clearModule('\(module)')")
     }
 }

@@ -1,10 +1,10 @@
 /// <reference path="../../types/index.d.ts" />
-import { JSBridgeIframe } from "src/util/JSBridgeUtil";
+import { JSBridgeKitIframe } from "src/util/JSBridgeKitUtils";
 
 /**
  * 建立同 Native 通信
  */
-export class JSBridge {
+export class JSNativeBridge {
 
     /**
      * 标记回调函数
@@ -75,10 +75,10 @@ export class JSBridge {
                     let targetMethod: string = shot + data.map(() => ":").join("");
                     if (sync.indexOf(targetMethod) === -1) {
                         // 异步调用
-                        window.JSBridge.callNative(module, targetMethod, data);
+                        window.JSNativeBridge.callNative(module, targetMethod, data);
                     } else {
                         // 同步调用
-                        return window.JSBridge.syncCallNative(module, targetMethod, data);
+                        return window.JSNativeBridge.syncCallNative(module, targetMethod, data);
                     }
                 };
             }
@@ -176,7 +176,7 @@ export class JSBridge {
             }
         }
         // 处理 iframe
-        JSBridgeIframe.dispatchMessage(message);
+        JSBridgeKitIframe.dispatchMessage(message);
     }
 
     /**

@@ -1,6 +1,6 @@
 //
-//  JavascriptBridgeKit.swift
-//  
+//  JavascriptBridgeModuleCookie.swift
+//
 //
 //  Created by 吴哲 on 2023/8/11.
 //
@@ -13,13 +13,9 @@ private protocol CookieSyncExport: JavascriptBridgeExport {
 }
 
 final class JavascriptBridgeModuleCookie: NSObject, CookieSyncExport {
-    
-    func setCookie(_ cookie: String) {
-        
-    }
+    func setCookie(_: String) {}
 
-    func getCookie(_ location: String) -> String {
+    func getCookie(_: String) -> String {
         return ""
     }
 }
-

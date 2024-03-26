@@ -1,7 +1,7 @@
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.JSBridge = factory());
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.JSNativeBridge = factory());
 })(this, (function () { 'use strict';
 
     /// <reference path="../../types/index.d.ts" />
@@ -11,14 +11,14 @@
     /**
      * 处理iframe
      */
-    var JSBridgeIframe = /** @class */ (function () {
-        function JSBridgeIframe() {
+    var JSBridgeKitIframe = /** @class */ (function () {
+        function JSBridgeKitIframe() {
         }
         /**
          * 分发消息
          * @param message
          */
-        JSBridgeIframe.dispatchMessage = function (message) {
+        JSBridgeKitIframe.dispatchMessage = function (message) {
             var iframe = document.querySelectorAll("iframe");
             // 处理有iframe的情况
             if (iframe) {
@@ -32,7 +32,7 @@
         /**
          * 添加消息监听
          */
-        JSBridgeIframe.addMessageListener = function () {
+        JSBridgeKitIframe.addMessageListener = function () {
             // iframe 处理来自父 window 的消息
             window.addEventListener("message", function (e) {
                 var data = e.data;
@@ -40,7 +40,7 @@
                     var str = data;
                     if (str.indexOf("messageType") !== -1) {
                         // 处理回调
-                        window.JSBridge.handleMesageFromNative(str);
+                        window.JSNativeBridge.handleMesageFromNative(str);
                     }
                 }
             });
@@ -48,7 +48,7 @@
         /**
          * 让 iframe 能够注入 app 里面的脚本
          */
-        JSBridgeIframe.setupHook = function () {
+        JSBridgeKitIframe.setupHook = function () {
             // 设置 iframe 标签 的 sandbox 属性
             document.addEventListener('DOMContentLoaded', function () {
                 var iframes = document.querySelectorAll("iframe");
@@ -93,15 +93,15 @@
                 return element;
             };
         };
-        return JSBridgeIframe;
+        return JSBridgeKitIframe;
     }());
 
     /// <reference path="../../types/index.d.ts" />
     /**
      * 建立同 Native 通信
      */
-    var JSBridge = /** @class */ (function () {
-        function JSBridge() {
+    var JSNativeBridge = /** @class */ (function () {
+        function JSNativeBridge() {
             this.uniqueId = -1;
             this.callbackCache = {};
             this.eventCallbackCache = {};
@@ -110,7 +110,7 @@
         /**
          * 清空所有modules
          */
-        JSBridge.prototype.clearAllModules = function () {
+        JSNativeBridge.prototype.clearAllModules = function () {
             this.moduleNames.forEach(function (module) {
                 window[module] = null;
                 delete window[module];
@@ -121,7 +121,7 @@
          * 清空指定module
          * @param module
          */
-        JSBridge.prototype.clearModule = function (module) {
+        JSNativeBridge.prototype.clearModule = function (module) {
             window[module] = null;
             delete window[module];
         };
@@ -131,7 +131,7 @@
          * @param methodString 方法名列表
          * @param isSync 是否是同步
          */
-        JSBridge.prototype.injectNativeScript = function (module, methodString, isSync) {
+        JSNativeBridge.prototype.injectNativeScript = function (module, methodString, isSync) {
             this.moduleNames.push(module);
             var methods = JSON.parse(methodString);
             var global = window[module] ? window[module] : (window[module] = { "_sync": [] });
@@ -147,11 +147,11 @@
                         var targetMethod = shot + data.map(function () { return ":"; }).join("");
                         if (sync.indexOf(targetMethod) === -1) {
                             // 异步调用
-                            window.JSBridge.callNative(module, targetMethod, data);
+                            window.JSNativeBridge.callNative(module, targetMethod, data);
                         }
                         else {
                             // 同步调用
-                            return window.JSBridge.syncCallNative(module, targetMethod, data);
+                            return window.JSNativeBridge.syncCallNative(module, targetMethod, data);
                         }
                     };
                 }
@@ -161,7 +161,7 @@
          * 参数包装
          * @param data
          */
-        JSBridge.prototype.messageDataWrapper = function (module, method, data) {
+        JSNativeBridge.prototype.messageDataWrapper = function (module, method, data) {
             var wrapper = [];
             for (var i = 0; i < data.length; i++) {
                 var value = data[i];
@@ -187,7 +187,7 @@
          * @param method 方法
          * @param data 数据
          */
-        JSBridge.prototype.callNative = function (module, method, data) {
+        JSNativeBridge.prototype.callNative = function (module, method, data) {
             var message = {
                 module: module,
                 method: method,
@@ -202,7 +202,7 @@
           * @param method 方法
           * @param data 数据
           */
-        JSBridge.prototype.syncCallNative = function (module, method, data) {
+        JSNativeBridge.prototype.syncCallNative = function (module, method, data) {
             var message = {
                 module: module,
                 method: method,
@@ -224,7 +224,7 @@
          * 处理来自 Native 的回调
          * @param message
          */
-        JSBridge.prototype.handleMesageFromNative = function (message) {
+        JSNativeBridge.prototype.handleMesageFromNative = function (message) {
             var callbackMessage = JSON.parse(message);
             if (callbackMessage.messageType === "callback" /* JS.MessageType.Callback */) {
                 // 执行 callback 回调并删除缓存
@@ -248,14 +248,14 @@
                 }
             }
             // 处理 iframe
-            JSBridgeIframe.dispatchMessage(message);
+            JSBridgeKitIframe.dispatchMessage(message);
         };
         /**
          * 监听事件
          * @param eventName 事件名字
          * @param callback 事件回调
          */
-        JSBridge.prototype.on = function (eventName, callback) {
+        JSNativeBridge.prototype.on = function (eventName, callback) {
             // 使用数组，支持多个观察者
             var obsevers = this.eventCallbackCache[eventName];
             if (obsevers) {
@@ -270,28 +270,28 @@
          * 取消监听事件
          * @param eventName 事件名字
          */
-        JSBridge.prototype.off = function (eventName) {
+        JSNativeBridge.prototype.off = function (eventName) {
             var obsevers = this.eventCallbackCache[eventName];
             if (obsevers && obsevers.length > 0) {
                 obsevers.splice(0, obsevers.length);
             }
         };
-        return JSBridge;
+        return JSNativeBridge;
     }());
 
     /// <reference path="../../types/index.d.ts" />
     /**
      * hook document.cookie
      */
-    var _JSBridgeCookieHook = /** @class */ (function () {
-        function _JSBridgeCookieHook() {
+    var _JSBridgeKitCookieHook = /** @class */ (function () {
+        function _JSBridgeKitCookieHook() {
         }
         // 静态属性和方法
-        _JSBridgeCookieHook.moduleName = 'cookieSync';
+        _JSBridgeKitCookieHook.moduleName = 'cookieSync';
         /**
          * 通过重新定义 cookie 属性来进行 cookie hook
          */
-        _JSBridgeCookieHook.setupHook = function () {
+        _JSBridgeKitCookieHook.setupHook = function () {
             try {
                 var cookieDesc = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie') ||
                     Object.getOwnPropertyDescriptor(HTMLDocument.prototype, 'cookie');
@@ -300,15 +300,15 @@
                         configurable: true,
                         enumerable: true,
                         get: function () {
-                            if (window.KKJSBridgeConfig.cookieGetHook) { // 如果开启 cookie get hook，则需要从 Native 同步
-                                return window.JSBridge.callNative(_JSBridgeCookieHook.moduleName, "getCookie", [window.location.href]);
+                            if (window.JSNativeBridgeKitConfig.cookieGetHook) { // 如果开启 cookie get hook，则需要从 Native 同步
+                                return window.JSNativeBridge.callNative(_JSBridgeKitCookieHook.moduleName, "getCookie", [window.location.href]);
                             }
                             return cookieDesc.get.call(document);
                         },
                         set: function (val) {
                             // console.log('setCookie');
-                            if (window.JSBridgeConfig.cookieSetHook) { // 如果开启 cookie set hook，则需要把 cookie 同步给 Native
-                                window.JSBridge.callNative(_JSBridgeCookieHook.moduleName, "setCookie", [val]);
+                            if (window.JSNativeBridgeKitConfig.cookieSetHook) { // 如果开启 cookie set hook，则需要把 cookie 同步给 Native
+                                window.JSNativeBridge.callNative(_JSBridgeKitCookieHook.moduleName, "setCookie", [val]);
                             }
                             cookieDesc.set.call(document, val);
                         }
@@ -319,49 +319,49 @@
                 console.log('this browser does not support reconfigure document.cookie property', e);
             }
         };
-        return _JSBridgeCookieHook;
+        return _JSBridgeKitCookieHook;
     }());
 
     /// <reference path="../types/index.d.ts" />
     var init = function () {
-        if (window.JSBridge) {
+        if (window.JSNativeBridge) {
             return;
         }
         /**
-      * KKJSBridge 配置
+      * JSBridge 配置
       */
-        var JSBridgeConfig = /** @class */ (function () {
-            function JSBridgeConfig() {
+        var JSBridgeKitConfig = /** @class */ (function () {
+            function JSBridgeKitConfig() {
             }
-            JSBridgeConfig.cookieSetHook = true;
-            JSBridgeConfig.cookieGetHook = true;
+            JSBridgeKitConfig.cookieSetHook = true;
+            JSBridgeKitConfig.cookieGetHook = true;
             /**
              * 开启 cookie set hook
              */
-            JSBridgeConfig.enableCookieSetHook = function (enable) {
-                JSBridgeConfig.cookieSetHook = enable;
+            JSBridgeKitConfig.enableCookieSetHook = function (enable) {
+                JSBridgeKitConfig.cookieSetHook = enable;
             };
             /**
              * 开启 cookie get hook
              */
-            JSBridgeConfig.enableCookieGetHook = function (enable) {
-                JSBridgeConfig.cookieGetHook = enable;
+            JSBridgeKitConfig.enableCookieGetHook = function (enable) {
+                JSBridgeKitConfig.cookieGetHook = enable;
             };
-            return JSBridgeConfig;
+            return JSBridgeKitConfig;
         }());
         // 初始化 JSBridge 并设为全局对象
-        window.JSBridge = new JSBridge();
-        // 设置 KKJSBridgeConfig 为全局对象
-        window.JSBridgeConfig = JSBridgeConfig;
+        window.JSNativeBridge = new JSNativeBridge();
+        // 设置 JSBridgeKitConfig 为全局对象
+        window.JSNativeBridgeKitConfig = JSBridgeKitConfig;
         // iframe 内处理来自父 window 的消息
-        JSBridgeIframe.addMessageListener();
+        JSBridgeKitIframe.addMessageListener();
         // 设置 iframe hook
-        JSBridgeIframe.setupHook();
+        JSBridgeKitIframe.setupHook();
         // 安装 cookie hook
-        _JSBridgeCookieHook.setupHook();
+        _JSBridgeKitCookieHook.setupHook();
     };
     init();
-    var index = window.JSBridge;
+    var index = window.JSNativeBridge;
 
     return index;
 
